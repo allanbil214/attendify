@@ -1,0 +1,60 @@
+About this app
+Eksistensi, Presensi, Catatan Aktivitas Harian Presensi/Absensi Berbasis Lokasi (GPS), dimana saja dan kapan saja.
+Multi Presensi (Setiap pegawai melakukan presensi pada satu atau banyak kegiatan sesuai dengan ketentuan perusahaan/lembaga)
+
+1. Setting Lokasi oleh Admin dari jarak jauh
+2. Presensi Penugasan
+3. Multi Presensi Berbasis Kegiatan
+
+
+ActiTrack
+Freeee
+
+Tracking & Reporting Kegiatan Karyawan Lebih Mudah dan Efisien
+Download Aplikasi (Google Playstore)
+Cek Fitur di Sini
+Masuk Admin webbase
+Isi Form, Kami Hubungi Anda
+Fitur Unggulan
+Tracking Lokasi
+
+Pantau aktivitas tim Anda secara real-time dengan akurasi tinggi langsung dari smartphone. Membuat pengelolaan karyawan atau petugas lapangan lebih efisien dan transparan.
+Upload Foto & Laporan
+
+Unggah bukti kegiatan dengan mudah, termasuk foto dan deskripsi. Semua data tersimpan rapi dan dapat diakses kapan saja untuk mempermudah monitoring.
+Laporan Instan
+
+Dapatkan laporan lengkap secara instan dalam format siap pakai. Hemat waktu dan mempermudah evaluasi kinerja tim.
+Siapa yang Bisa Menggunakan ActiTrack
+Karyawan
+
+Memudahkan tracking aktivitas harian dan laporan pekerjaan.
+Guru
+
+Memantau kegiatan belajar mengajar dan absensi siswa.
+Siswa
+
+Melaporkan tugas, aktivitas belajar, dan kehadiran secara mudah.
+Petugas Lapangan (Rekomended)
+
+Ideal untuk memonitor pekerjaan lapangan secara real-time dengan foto dan lokasi.
+Cara Kerja Aplikasi
+Karyawan
+
+    Karyawan melakukan absensi masuk sesuai jadwal kerja.
+    Presensi hanya dapat dilakukan di lokasi atau koordinat yang telah ditetapkan Admin.
+    Admin dapat memantau presensi dan lokasi karyawan secara real-time.
+    Admin menerima notifikasi setiap kali karyawan melakukan presensi.
+    Karyawan hanya dapat dimonitoring pada jam kerja yang berlaku.
+    Tracking lokasi akan otomatis berhenti setelah jam kerja selesai.
+    Admin dapat merekap seluruh aktivitas karyawan, termasuk absen masuk, pulang, dan aktivitas lainnya.
+
+1. Absensi
+
+Karyawan melakukan absensi masuk di lokasi yang ditentukan.
+2. Monitoring
+
+Admin memantau lokasi & aktivitas karyawan secara real-time.
+3. Rekap & Laporan
+
+Admin menerima notifikasi & membuat rekap aktivitas harian.
