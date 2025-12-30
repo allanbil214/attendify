@@ -12,13 +12,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.allan.attendify.domain.model.Attendance
 import com.allan.attendify.ui.common.UiState
+import com.allan.attendify.ui.theme.AttendifyTheme
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,7 +114,7 @@ fun AttendanceItem(attendance: Attendance) {
                 Text(
                     text = dateFormat.format(attendance.checkInTime),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
                 
                 Badge(
@@ -151,7 +152,7 @@ fun AttendanceItem(attendance: Attendance) {
                             style = MaterialTheme.typography.labelMedium
                         )
                         Text(
-                            text = timeFormat.format(attendance.checkOutTime),
+                            text = timeFormat.format(attendance.checkOutTime!!),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -160,7 +161,7 @@ fun AttendanceItem(attendance: Attendance) {
                         text = "Active",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
@@ -169,11 +170,33 @@ fun AttendanceItem(attendance: Attendance) {
             if (attendance.locationName != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = attendance.locationName,
+                    text = attendance.locationName!!,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AttendanceItemPreview() {
+    AttendifyTheme {
+        AttendanceItem(
+            attendance = Attendance(
+                id = "1",
+                userId = "user1",
+                locationId = "loc1",
+                checkInTime = Date(),
+                checkOutTime = Date(System.currentTimeMillis() + 3600000), // +1 hour
+                checkInLatitude = 0.0,
+                checkInLongitude = 0.0,
+                status = "completed",
+                isLate = true,
+                locationName = "Main Office",
+                locationAddress = "123 Main St"
+            )
+        )
     }
 }

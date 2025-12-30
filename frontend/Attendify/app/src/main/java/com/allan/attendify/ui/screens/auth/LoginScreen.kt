@@ -15,9 +15,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.allan.attendify.ui.common.UiState
+import com.allan.attendify.ui.theme.AttendifyTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,6 +130,55 @@ fun LoginScreen(
 
             TextButton(onClick = onNavigateToRegister) {
                 Text("Don't have an account? Sign up")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    AttendifyTheme {
+        // We can't easily preview the full screen with ViewModel, 
+        // so we'd ideally extract content to a stateless composable.
+        // For now, this preview just renders the theme context to ensure it builds.
+        // To make it meaningful, we should refactor LoginScreenContent.
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+             Text(
+                text = "Welcome Back",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+             Text(
+                text = "Sign in to continue",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                label = { Text("Password") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {},
+                modifier = Modifier.fillMaxWidth().height(50.dp)
+            ) {
+                Text("Login")
             }
         }
     }

@@ -7,17 +7,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.allan.attendify.ui.common.UiState
 import com.allan.attendify.ui.components.CameraPreview
 import com.allan.attendify.ui.components.OsmMapView
+import com.allan.attendify.ui.theme.AttendifyTheme
 import org.osmdroid.util.GeoPoint
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,10 +121,21 @@ fun CheckInScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        CameraPreview(
-                            modifier = Modifier.fillMaxSize(),
-                            imageCapture = imageCapture
-                        )
+                        // CameraPreview cannot be previewed in IDE easily, so we can mock or just show box in preview
+                        // For runtime it works.
+                        if (!androidx.compose.ui.platform.LocalInspectionMode.current) {
+                            CameraPreview(
+                                modifier = Modifier.fillMaxSize(),
+                                imageCapture = imageCapture
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier.fillMaxSize().padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Camera Preview")
+                            }
+                        }
                         Icon(
                             imageVector = Icons.Filled.CameraAlt,
                             contentDescription = null,
@@ -174,16 +188,38 @@ fun CheckInScreen(
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             // Map View
             if (userLocation != null) {
-                OsmMapView(
-                    modifier = Modifier.fillMaxSize(),
-                    userLocation = userLocation?.let { GeoPoint(it.latitude, it.longitude) },
-                    officeLocations = nearbyLocations
-                )
+                if (!androidx.compose.ui.platform.LocalInspectionMode.current) {
+                    OsmMapView(
+                        modifier = Modifier.fillMaxSize(),
+                        userLocation = userLocation?.let { GeoPoint(it.latitude, it.longitude) },
+                        officeLocations = nearbyLocations
+                    )
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Map View")
+                    }
+                }
             } else {
                  Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                      CircularProgressIndicator()
                  }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CheckInScreenPreview() {
+    AttendifyTheme {
+         // Previewing a complex screen like this with ViewModel dependency is hard without mocking.
+         // We'll show a placeholder or basic structure if we extracted content.
+         // Since we didn't extract the scaffold content to a stateless composable, 
+         // this preview will fail if rendered because of ViewModel injection.
+         // To fix, we would need to refactor CheckInScreen into CheckInScreen(Stateless) and CheckInScreen(Stateful).
+         
+         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+             Text("CheckIn Screen Preview requires refactoring for stateless content")
+         }
     }
 }
