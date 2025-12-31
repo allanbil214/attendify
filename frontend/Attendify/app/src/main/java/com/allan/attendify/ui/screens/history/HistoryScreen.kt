@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.allan.attendify.domain.model.Attendance
 import com.allan.attendify.ui.common.UiState
+import com.allan.attendify.ui.components.BottomNavBar
+import com.allan.attendify.ui.navigation.Screen
 import com.allan.attendify.ui.theme.AttendifyTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -26,7 +28,9 @@ import java.util.Locale
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToHome: () -> Unit,
+    onNavigateToProfile: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -40,6 +44,36 @@ fun HistoryScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            // We need a way to trigger navigation for the bottom bar.
+            // Since we don't have the navController here, we construct a fake one or
+            // better yet, we can't easily use the reusable BottomNavBar component 
+            // without the NavController reference or callbacks.
+            // However, the reusable component expects a NavController.
+            // Ideally, we refactor BottomNavBar to take callbacks or just copy the UI here.
+            // Given the constraint, copying the NavigationBar UI structure is cleaner than passing NavController everywhere.
+            
+            NavigationBar {
+                NavigationBarItem(
+                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.Home.icon, contentDescription = "Home") },
+                    label = { Text("Home") },
+                    selected = false,
+                    onClick = onNavigateToHome
+                )
+                NavigationBarItem(
+                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.History.icon, contentDescription = "History") },
+                    label = { Text("History") },
+                    selected = true,
+                    onClick = { /* Already here */ }
+                )
+                NavigationBarItem(
+                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.Profile.icon, contentDescription = "Profile") },
+                    label = { Text("Profile") },
+                    selected = false,
+                    onClick = onNavigateToProfile
+                )
+            }
         }
     ) { paddingValues ->
         Box(
