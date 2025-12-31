@@ -29,13 +29,15 @@ fun CheckOutScreen(
     val uiState by viewModel.uiState.collectAsState()
     val note by viewModel.note.collectAsState()
     val workDuration by viewModel.workDuration.collectAsState()
+    val imageCapture = remember { ImageCapture.Builder().build() }
 
     CheckOutScreenContent(
         uiState = uiState,
         note = note,
         workDuration = workDuration,
+        imageCapture = imageCapture,
         onNoteChange = viewModel::onNoteChange,
-        onCheckOut = viewModel::checkOut,
+        onCheckOut = { viewModel.checkOut(imageCapture) },
         onNavigateBack = onNavigateBack,
         onCheckOutSuccess = onCheckOutSuccess
     )
@@ -47,12 +49,12 @@ fun CheckOutScreenContent(
     uiState: UiState<Unit>,
     note: String,
     workDuration: String,
+    imageCapture: ImageCapture,
     onNoteChange: (String) -> Unit,
     onCheckOut: () -> Unit,
     onNavigateBack: () -> Unit,
     onCheckOutSuccess: () -> Unit
 ) {
-    val imageCapture = remember { ImageCapture.Builder().build() }
 
     LaunchedEffect(uiState) {
         if (uiState is UiState.Success) {
@@ -175,6 +177,7 @@ fun CheckOutScreenPreview() {
             uiState = UiState.Idle,
             note = "",
             workDuration = "08:30:15",
+            imageCapture = ImageCapture.Builder().build(),
             onNoteChange = {},
             onCheckOut = {},
             onNavigateBack = {},
