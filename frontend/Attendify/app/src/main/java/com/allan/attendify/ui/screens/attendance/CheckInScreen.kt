@@ -38,6 +38,7 @@ fun CheckInScreen(
     val selectedLocation by viewModel.selectedLocation.collectAsState()
     val distance by viewModel.distanceToLocation.collectAsState()
     val note by viewModel.note.collectAsState()
+    val imageCapture = remember { ImageCapture.Builder().build() }
 
     CheckInScreenContent(
         uiState = uiState,
@@ -46,9 +47,10 @@ fun CheckInScreen(
         selectedLocation = selectedLocation,
         distance = distance,
         note = note,
+        imageCapture = imageCapture,
         onNoteChange = viewModel::onNoteChange,
         onRefreshLocation = viewModel::getCurrentLocationAndFetchNearby,
-        onValidateAndCheckIn = viewModel::validateAndCheckIn,
+        onValidateAndCheckIn = { viewModel.validateAndCheckIn(imageCapture) },
         onNavigateBack = onNavigateBack,
         onCheckInSuccess = onCheckInSuccess
     )
@@ -63,13 +65,13 @@ fun CheckInScreenContent(
     selectedLocation: OfficeLocation?,
     distance: Double?,
     note: String,
+    imageCapture: ImageCapture,
     onNoteChange: (String) -> Unit,
     onRefreshLocation: () -> Unit,
     onValidateAndCheckIn: () -> Unit,
     onNavigateBack: () -> Unit,
     onCheckInSuccess: () -> Unit
 ) {
-    val imageCapture = remember { ImageCapture.Builder().build() }
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     LaunchedEffect(uiState) {
@@ -257,6 +259,7 @@ fun CheckInScreenPreview() {
             selectedLocation = mockOfficeLocation,
             distance = 50.0,
             note = "",
+            imageCapture = ImageCapture.Builder().build(),
             onNoteChange = {},
             onRefreshLocation = {},
             onValidateAndCheckIn = {},

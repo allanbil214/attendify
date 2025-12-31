@@ -1,6 +1,7 @@
 package com.allan.attendify.data.remote
 
 import com.allan.attendify.data.remote.dto.*
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -40,4 +41,11 @@ interface ApiService {
         @Query("longitude") longitude: Double,
         @Query("max_distance") maxDistance: Double? = null
     ): Response<LocationsResponse>
+
+    // Upload
+    @Multipart
+    @POST("upload/photo")
+    suspend fun uploadPhoto(
+        @Part photo: MultipartBody.Part
+    ): Response<PhotoUploadResponse>
 }

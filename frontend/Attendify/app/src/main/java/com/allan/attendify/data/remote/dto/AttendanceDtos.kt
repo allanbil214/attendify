@@ -7,6 +7,7 @@ data class CheckInRequest(
     val latitude: Double,
     val longitude: Double,
     val note: String?,
+    @SerializedName("photo_url") val photoUrl: String?,
     @SerializedName("device_info") val deviceInfo: DeviceInfo
 )
 
@@ -20,7 +21,8 @@ data class CheckOutRequest(
     @SerializedName("attendance_id") val attendanceId: String,
     val latitude: Double,
     val longitude: Double,
-    val note: String?
+    val note: String?,
+    @SerializedName("photo_url") val photoUrl: String?
 )
 
 data class AttendanceResponse(

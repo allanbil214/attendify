@@ -38,6 +38,7 @@ class SyncWorker @AssistedInject constructor(
                         latitude = record.checkInLatitude,
                         longitude = record.checkInLongitude,
                         note = null, // Note might need to be stored in entity if we want to sync it
+                        photoUrl = null, // Offline check-ins don't have a photo to upload
                         deviceInfo = DeviceInfo("Unknown", "Android", "1.0.0") // Placeholder
                     )
                     
