@@ -21,12 +21,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.allan.attendify.data.remote.dto.AttendanceDto
 import com.allan.attendify.ui.common.UiState
+import com.allan.attendify.ui.theme.AttendifyTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -54,6 +56,7 @@ fun HomeScreen(
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
+
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
@@ -300,5 +303,32 @@ fun StatusRow(label: String, time: String, location: String) {
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    AttendifyTheme {
+        DashboardContent(
+            attendance = AttendanceDto(
+                id = "1",
+                userId = "user1",
+                locationId = "loc1",
+                checkInTime = "2024-01-01T09:00:00Z",
+                checkOutTime = null,
+                checkInLatitude = 0.0,
+                checkInLongitude = 0.0,
+                status = "present",
+                isLate = false,
+                locationName = "Main Office",
+                locationAddress = "123 Main St"
+            ),
+            onCheckInClick = {},
+            onCheckOutClick = {},
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        )
     }
 }

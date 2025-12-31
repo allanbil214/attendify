@@ -12,12 +12,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.allan.attendify.ui.common.UiState
 import com.allan.attendify.ui.components.CameraPreview
+import com.allan.attendify.ui.theme.AttendifyTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckOutScreen(
     viewModel: CheckOutViewModel = hiltViewModel(),
@@ -27,8 +29,32 @@ fun CheckOutScreen(
     val uiState by viewModel.uiState.collectAsState()
     val note by viewModel.note.collectAsState()
     val workDuration by viewModel.workDuration.collectAsState()
-
     val imageCapture = remember { ImageCapture.Builder().build() }
+
+    CheckOutScreenContent(
+        uiState = uiState,
+        note = note,
+        workDuration = workDuration,
+        imageCapture = imageCapture,
+        onNoteChange = viewModel::onNoteChange,
+        onCheckOut = { viewModel.checkOut(imageCapture) },
+        onNavigateBack = onNavigateBack,
+        onCheckOutSuccess = onCheckOutSuccess
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CheckOutScreenContent(
+    uiState: UiState<Unit>,
+    note: String,
+    workDuration: String,
+    imageCapture: ImageCapture,
+    onNoteChange: (String) -> Unit,
+    onCheckOut: () -> Unit,
+    onNavigateBack: () -> Unit,
+    onCheckOutSuccess: () -> Unit
+) {
 
     LaunchedEffect(uiState) {
         if (uiState is UiState.Success) {
@@ -80,10 +106,19 @@ fun CheckOutScreen(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    CameraPreview(
-                        modifier = Modifier.fillMaxSize(),
-                        imageCapture = imageCapture
-                    )
+                    if (!LocalInspectionMode.current) {
+                        CameraPreview(
+                            modifier = Modifier.fillMaxSize(),
+                            imageCapture = imageCapture
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize().padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Camera Preview")
+                        }
+                    }
                     Icon(
                         imageVector = Icons.Filled.CameraAlt,
                         contentDescription = null,
@@ -95,7 +130,7 @@ fun CheckOutScreen(
 
             OutlinedTextField(
                 value = note,
-                onValueChange = viewModel::onNoteChange,
+                onValueChange = onNoteChange,
                 label = { Text("Note (Optional)") },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -103,7 +138,7 @@ fun CheckOutScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = viewModel::checkOut,
+                onClick = onCheckOut,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -131,5 +166,22 @@ fun CheckOutScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CheckOutScreenPreview() {
+    AttendifyTheme {
+        CheckOutScreenContent(
+            uiState = UiState.Idle,
+            note = "",
+            workDuration = "08:30:15",
+            imageCapture = ImageCapture.Builder().build(),
+            onNoteChange = {},
+            onCheckOut = {},
+            onNavigateBack = {},
+            onCheckOutSuccess = {}
+        )
     }
 }

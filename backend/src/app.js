@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const errorHandler = require('./middleware/errorHandler');
 const { limiter } = require('./middleware/rateLimiter');
+const path = require('path');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -20,6 +21,9 @@ app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   credentials: true,
 }));
+
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -46,11 +50,13 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
+const uploadRoutes = require('./routes/upload');
 const apiVersion = process.env.API_VERSION || 'v1';
 app.use(`/api/${apiVersion}/auth`, authRoutes);
 app.use(`/api/${apiVersion}/attendance`, attendanceRoutes);
 app.use(`/api/${apiVersion}/locations`, locationRoutes);
 app.use(`/api/${apiVersion}/users`, userRoutes);
+app.use(`/api/${apiVersion}/upload`, uploadRoutes);
 
 // 404 handler
 app.use((req, res) => {

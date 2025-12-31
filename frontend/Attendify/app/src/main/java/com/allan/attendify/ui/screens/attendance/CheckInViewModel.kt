@@ -1,6 +1,8 @@
 package com.allan.attendify.ui.screens.attendance
 
+import android.content.Context
 import android.location.Location
+import androidx.camera.core.ImageCapture
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.allan.attendify.data.remote.dto.CheckInRequest
@@ -8,18 +10,27 @@ import com.allan.attendify.data.remote.dto.DeviceInfo
 import com.allan.attendify.domain.model.Location as OfficeLocation
 import com.allan.attendify.domain.repository.AttendanceRepository
 import com.allan.attendify.domain.repository.LocationRepository
+import com.allan.attendify.domain.repository.PhotoRepository
 import com.allan.attendify.ui.common.UiState
+import com.allan.attendify.utils.ImageUtils
 import com.allan.attendify.utils.LocationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.util.concurrent.Executors
 import javax.inject.Inject
 
 @HiltViewModel
 class CheckInViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val locationRepository: LocationRepository,
     private val attendanceRepository: AttendanceRepository,
+    private val photoRepository: PhotoRepository,
     private val locationHelper: LocationHelper
 ) : ViewModel() {
 
@@ -40,6 +51,8 @@ class CheckInViewModel @Inject constructor(
 
     private val _note = MutableStateFlow("")
     val note = _note.asStateFlow()
+    
+    private val cameraExecutor = Executors.newSingleThreadExecutor()
 
     init {
         getCurrentLocationAndFetchNearby()
@@ -89,7 +102,7 @@ class CheckInViewModel @Inject constructor(
         }
     }
 
-    fun validateAndCheckIn() {
+    fun validateAndCheckIn(imageCapture: ImageCapture) {
         val selected = _selectedLocation.value
         val userLoc = _userLocation.value
         val dist = _distanceToLocation.value
@@ -107,30 +120,61 @@ class CheckInViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             
-            // In a real app, we would upload the photo here and get a URL, 
-            // or send base64. For MVP, we skip photo upload logic but the camera is there.
-            
-            val deviceInfo = DeviceInfo(
-                model = android.os.Build.MODEL,
-                os = "Android ${android.os.Build.VERSION.RELEASE}",
-                appVersion = "1.0.0"
-            )
+            // 1. Take picture
+            val imageProxy = ImageUtils.takePicture(imageCapture, cameraExecutor)
+            if (imageProxy == null) {
+                _uiState.value = UiState.Error("Failed to capture image.")
+                return@launch
+            }
+            val bitmap = ImageUtils.imageProxyToBitmap(imageProxy)
+            imageProxy.close()
 
-            val request = CheckInRequest(
-                locationId = selected.id,
-                latitude = userLoc.latitude,
-                longitude = userLoc.longitude,
-                note = _note.value,
-                deviceInfo = deviceInfo
-            )
-
-            val result = attendanceRepository.checkIn(request)
+            // 2. Upload photo
+            val file = ImageUtils.bitmapToFile(context, bitmap)
+            val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+            val body = MultipartBody.Part.createFormData("photo", file.name, requestFile)
             
-            result.onSuccess {
-                _uiState.value = UiState.Success(Unit)
+            val uploadResult = photoRepository.uploadPhoto(body)
+            
+            uploadResult.onSuccess { uploadResponse ->
+                val photoUrl = uploadResponse.data?.url
+                if (photoUrl == null) {
+                     _uiState.value = UiState.Error("Failed to get photo URL from server.")
+                     return@onSuccess
+                }
+                
+                // 3. Check in with photo URL
+                val deviceInfo = DeviceInfo(
+                    model = android.os.Build.MODEL,
+                    os = "Android ${android.os.Build.VERSION.RELEASE}",
+                    appVersion = "1.0.0"
+                )
+
+                val request = CheckInRequest(
+                    locationId = selected.id,
+                    latitude = userLoc.latitude,
+                    longitude = userLoc.longitude,
+                    note = _note.value,
+                    photoUrl = photoUrl,
+                    deviceInfo = deviceInfo
+                )
+
+                val checkInResult = attendanceRepository.checkIn(request)
+                
+                checkInResult.onSuccess {
+                    _uiState.value = UiState.Success(Unit)
+                }.onFailure {
+                    _uiState.value = UiState.Error(it.message ?: "Check-in failed")
+                }
+                
             }.onFailure {
-                _uiState.value = UiState.Error(it.message ?: "Check-in failed")
+                _uiState.value = UiState.Error(it.message ?: "Photo upload failed.")
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        cameraExecutor.shutdown()
     }
 }
