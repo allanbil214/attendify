@@ -12,20 +12,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.allan.attendify.domain.model.Attendance
 import com.allan.attendify.ui.common.UiState
+import com.allan.attendify.ui.components.BottomNavBar
+import com.allan.attendify.ui.navigation.Screen
+import com.allan.attendify.ui.theme.AttendifyTheme
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToHome: () -> Unit,
+    onNavigateToProfile: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -39,6 +44,36 @@ fun HistoryScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            // We need a way to trigger navigation for the bottom bar.
+            // Since we don't have the navController here, we construct a fake one or
+            // better yet, we can't easily use the reusable BottomNavBar component 
+            // without the NavController reference or callbacks.
+            // However, the reusable component expects a NavController.
+            // Ideally, we refactor BottomNavBar to take callbacks or just copy the UI here.
+            // Given the constraint, copying the NavigationBar UI structure is cleaner than passing NavController everywhere.
+            
+            NavigationBar {
+                NavigationBarItem(
+                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.Home.icon, contentDescription = "Home") },
+                    label = { Text("Home") },
+                    selected = false,
+                    onClick = onNavigateToHome
+                )
+                NavigationBarItem(
+                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.History.icon, contentDescription = "History") },
+                    label = { Text("History") },
+                    selected = true,
+                    onClick = { /* Already here */ }
+                )
+                NavigationBarItem(
+                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.Profile.icon, contentDescription = "Profile") },
+                    label = { Text("Profile") },
+                    selected = false,
+                    onClick = onNavigateToProfile
+                )
+            }
         }
     ) { paddingValues ->
         Box(
@@ -113,7 +148,7 @@ fun AttendanceItem(attendance: Attendance) {
                 Text(
                     text = dateFormat.format(attendance.checkInTime),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
                 
                 Badge(
@@ -151,7 +186,7 @@ fun AttendanceItem(attendance: Attendance) {
                             style = MaterialTheme.typography.labelMedium
                         )
                         Text(
-                            text = timeFormat.format(attendance.checkOutTime),
+                            text = timeFormat.format(attendance.checkOutTime!!),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -160,7 +195,7 @@ fun AttendanceItem(attendance: Attendance) {
                         text = "Active",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
@@ -169,11 +204,33 @@ fun AttendanceItem(attendance: Attendance) {
             if (attendance.locationName != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = attendance.locationName,
+                    text = attendance.locationName!!,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AttendanceItemPreview() {
+    AttendifyTheme {
+        AttendanceItem(
+            attendance = Attendance(
+                id = "1",
+                userId = "user1",
+                locationId = "loc1",
+                checkInTime = Date(),
+                checkOutTime = Date(System.currentTimeMillis() + 3600000), // +1 hour
+                checkInLatitude = 0.0,
+                checkInLongitude = 0.0,
+                status = "completed",
+                isLate = true,
+                locationName = "Main Office",
+                locationAddress = "123 Main St"
+            )
+        )
     }
 }
