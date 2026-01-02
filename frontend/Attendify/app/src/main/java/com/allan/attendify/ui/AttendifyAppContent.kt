@@ -1,11 +1,11 @@
 package com.allan.attendify.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.allan.attendify.ui.navigation.Screen
 import com.allan.attendify.ui.screens.auth.LoginScreen
@@ -16,10 +16,21 @@ import com.allan.attendify.ui.screens.history.HistoryScreen
 import com.allan.attendify.ui.screens.home.HomeScreen
 import com.allan.attendify.ui.screens.profile.ProfileScreen
 import com.allan.attendify.ui.screens.splash.SplashScreen
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun AttendifyAppContent() {
+fun AttendifyAppContent(
+    mainViewModel: MainViewModel = hiltViewModel()
+) {
     val navController = rememberNavController()
+
+    LaunchedEffect(Unit) {
+        mainViewModel.logoutEvent.collectLatest {
+            navController.navigate(Screen.Login.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -59,14 +70,12 @@ fun AttendifyAppContent() {
         }
         composable(Screen.Home.route) {
             HomeScreen(
+                navController = navController,
                 onNavigateToCheckIn = { navController.navigate(Screen.CheckIn.route) },
                 onNavigateToCheckOut = { navController.navigate(Screen.CheckOut.route) },
-                onNavigateToHistory = { navController.navigateSingleTopTo(Screen.History.route) },
-                onNavigateToProfile = { navController.navigateSingleTopTo(Screen.Profile.route) },
-                onNavigateToLocations = { navController.navigate(Screen.Locations.route) },
                 onNavigateToLogin = {
                     navController.navigate(Screen.Login.route) {
-                        popUpTo(0) // Clear stack
+                        popUpTo(0)
                     }
                 }
             )
@@ -84,27 +93,20 @@ fun AttendifyAppContent() {
             )
         }
         composable(Screen.History.route) {
-            HistoryScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToHome = { navController.navigateSingleTopTo(Screen.Home.route) },
-                onNavigateToProfile = { navController.navigateSingleTopTo(Screen.Profile.route) }
-            )
+            HistoryScreen(navController = navController)
         }
         composable(Screen.Profile.route) {
             ProfileScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToHome = { navController.navigateSingleTopTo(Screen.Home.route) },
-                onNavigateToHistory = { navController.navigateSingleTopTo(Screen.History.route) },
+                navController = navController,
                 onLogout = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0)
-                    }
+                    // This can now be handled by the MainViewModel's global logout
+                    // but we can still keep manual logout functionality here if needed.
+                    // For now, we will just trigger the main logout flow
                 }
             )
         }
         composable(Screen.Locations.route) {
             // Placeholder for Locations if we don't implement it yet
-            // Or navigate back for now
             androidx.compose.material3.Text("Locations screen not implemented")
         }
     }

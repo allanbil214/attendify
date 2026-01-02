@@ -4,10 +4,12 @@ import com.allan.attendify.data.repository.AttendanceRepositoryImpl
 import com.allan.attendify.data.repository.AuthRepositoryImpl
 import com.allan.attendify.data.repository.LocationRepositoryImpl
 import com.allan.attendify.data.repository.PhotoRepositoryImpl
+import com.allan.attendify.data.repository.ScheduleRepositoryImpl
 import com.allan.attendify.domain.repository.AttendanceRepository
 import com.allan.attendify.domain.repository.AuthRepository
 import com.allan.attendify.domain.repository.LocationRepository
 import com.allan.attendify.domain.repository.PhotoRepository
+import com.allan.attendify.domain.repository.ScheduleRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -41,4 +43,10 @@ abstract class RepositoryModule {
     abstract fun bindPhotoRepository(
         photoRepositoryImpl: PhotoRepositoryImpl
     ): PhotoRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindScheduleRepository(
+        scheduleRepositoryImpl: ScheduleRepositoryImpl
+    ): ScheduleRepository
 }

@@ -53,11 +53,11 @@ const checkIn = async (req, res, next) => {
       });
     }
 
-    // Check if late (example: work starts at 08:00)
-    const currentTime = new Date();
-    const workStartTime = new Date();
-    workStartTime.setHours(8, 0, 0, 0);
-    const isLate = currentTime > workStartTime;
+    const lateCheckResult = await db.query(
+      'SELECT is_employee_late($1::UUID, NOW()::TIMESTAMP) as is_late',
+      [userId]
+    );
+    const isLate = lateCheckResult.rows[0].is_late;
 
     // Create attendance record
     const result = await db.query(
@@ -71,6 +71,11 @@ const checkIn = async (req, res, next) => {
 
     const attendance = result.rows[0];
 
+    const scheduleResult = await db.query(
+      'SELECT * FROM get_user_schedule($1, EXTRACT(DOW FROM NOW())::INTEGER)',
+      [userId]
+    );
+	
     // Create activity log
     await db.query(
       `INSERT INTO activities 
@@ -81,13 +86,14 @@ const checkIn = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: 'Check-in successful',
+      message: isLate ? 'Checked in (Late)' : 'Check-in successful',
       data: {
         ...attendance,
         location: {
           name: location.name,
           address: location.address,
         },
+        expected_schedule: scheduleResult.rows[0] || null,
       },
     });
   } catch (error) {
