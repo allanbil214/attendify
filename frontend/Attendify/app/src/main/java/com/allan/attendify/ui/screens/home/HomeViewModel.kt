@@ -3,9 +3,11 @@ package com.allan.attendify.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.allan.attendify.data.remote.dto.AttendanceDto
+import com.allan.attendify.data.remote.dto.ScheduleDto
 import com.allan.attendify.domain.model.User
 import com.allan.attendify.domain.repository.AttendanceRepository
 import com.allan.attendify.domain.repository.AuthRepository
+import com.allan.attendify.domain.repository.ScheduleRepository
 import com.allan.attendify.ui.common.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val attendanceRepository: AttendanceRepository
+    private val attendanceRepository: AttendanceRepository,
+    private val scheduleRepository: ScheduleRepository
 ) : ViewModel() {
 
     private val _currentUser = authRepository.getCurrentUser()
@@ -29,6 +32,9 @@ class HomeViewModel @Inject constructor(
     private val _attendanceState = MutableStateFlow<UiState<AttendanceDto?>>(UiState.Loading)
     val attendanceState = _attendanceState.asStateFlow()
 
+    private val _scheduleState = MutableStateFlow<UiState<ScheduleDto?>>(UiState.Loading)
+    val scheduleState = _scheduleState.asStateFlow()
+
     init {
         refreshData()
     }
@@ -36,6 +42,7 @@ class HomeViewModel @Inject constructor(
     fun refreshData() {
         viewModelScope.launch {
             fetchTodayAttendance()
+            fetchTodaySchedule()
         }
     }
 
@@ -44,14 +51,20 @@ class HomeViewModel @Inject constructor(
         val result = attendanceRepository.getTodayAttendance()
         
         result.onSuccess { response ->
-            // If data is null, it means not checked in yet, which is a valid state (Success with null)
             _attendanceState.value = UiState.Success(response.data)
-        }.onFailure {
-            // For now, if we fail to get today's attendance, we might assume not checked in 
-            // or show error. If 404 is returned for "no attendance today", handle it.
-            // Assuming API returns null data or specific response if empty.
-            // If it's a network error, we should show it.
+        }.onFailure { 
             _attendanceState.value = UiState.Error(it.message ?: "Failed to load status")
+        }
+    }
+
+    private suspend fun fetchTodaySchedule() {
+        _scheduleState.value = UiState.Loading
+        val result = scheduleRepository.getTodaySchedule()
+
+        result.onSuccess { response ->
+            _scheduleState.value = UiState.Success(response.data)
+        }.onFailure {
+            _scheduleState.value = UiState.Error(it.message ?: "Failed to load schedule")
         }
     }
 

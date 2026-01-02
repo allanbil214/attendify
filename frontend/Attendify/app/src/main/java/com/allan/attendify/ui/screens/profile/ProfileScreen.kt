@@ -4,8 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,20 +13,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.allan.attendify.ui.components.BottomNavBar
 import com.allan.attendify.ui.theme.AttendifyTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
+    navController: NavController,
     viewModel: ProfileViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit,
-    onNavigateToHome: () -> Unit,
-    onNavigateToHistory: () -> Unit,
     onLogout: () -> Unit
 ) {
     val user by viewModel.currentUser.collectAsState()
@@ -35,35 +33,11 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Profile") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+                title = { Text("Profile") }
             )
         },
         bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.Home.icon, contentDescription = "Home") },
-                    label = { Text("Home") },
-                    selected = false,
-                    onClick = onNavigateToHome
-                )
-                NavigationBarItem(
-                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.History.icon, contentDescription = "History") },
-                    label = { Text("History") },
-                    selected = false,
-                    onClick = onNavigateToHistory
-                )
-                NavigationBarItem(
-                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.Profile.icon, contentDescription = "Profile") },
-                    label = { Text("Profile") },
-                    selected = true,
-                    onClick = { /* Already here */ }
-                )
-            }
+            BottomNavBar(navController = navController, currentRoute = "profile")
         }
     ) { paddingValues ->
         Column(
@@ -75,7 +49,6 @@ fun ProfileScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Avatar Placeholder
             Box(
                 modifier = Modifier
                     .size(100.dp)
@@ -127,7 +100,7 @@ fun ProfileScreen(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Icon(Icons.Filled.ExitToApp, contentDescription = null)
+                Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Logout")
             }
@@ -151,7 +124,7 @@ fun ProfileItem(label: String, value: String) {
             text = value,
             style = MaterialTheme.typography.bodyLarge
         )
-        Divider(modifier = Modifier.padding(top = 8.dp))
+        HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
     }
 }
 
@@ -159,8 +132,6 @@ fun ProfileItem(label: String, value: String) {
 @Composable
 fun ProfileScreenPreview() {
     AttendifyTheme {
-        // As with other VM-heavy screens, we'd refactor to preview content easily
-        // This shows a simplified version
          Column(
             modifier = Modifier
                 .fillMaxSize()

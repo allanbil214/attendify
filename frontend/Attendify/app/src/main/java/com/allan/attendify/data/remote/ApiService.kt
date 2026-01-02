@@ -48,4 +48,8 @@ interface ApiService {
     suspend fun uploadPhoto(
         @Part photo: MultipartBody.Part
     ): Response<PhotoUploadResponse>
+
+    // Schedule
+    @GET("schedules/today")
+    suspend fun getTodaySchedule(): Response<TodayScheduleResponse>
 }

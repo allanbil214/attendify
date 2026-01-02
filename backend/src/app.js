@@ -12,6 +12,7 @@ const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
 const locationRoutes = require('./routes/locations');
 const userRoutes = require('./routes/users');
+const scheduleRoutes = require('./routes/schedules');
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use(`/api/${apiVersion}/attendance`, attendanceRoutes);
 app.use(`/api/${apiVersion}/locations`, locationRoutes);
 app.use(`/api/${apiVersion}/users`, userRoutes);
 app.use(`/api/${apiVersion}/upload`, uploadRoutes);
+app.use(`/api/${apiVersion}/schedules`, scheduleRoutes);
 
 // 404 handler
 app.use((req, res) => {

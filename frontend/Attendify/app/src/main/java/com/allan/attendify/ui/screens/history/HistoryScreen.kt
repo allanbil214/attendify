@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -15,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.allan.attendify.domain.model.Attendance
 import com.allan.attendify.ui.common.UiState
 import com.allan.attendify.ui.components.BottomNavBar
-import com.allan.attendify.ui.navigation.Screen
 import com.allan.attendify.ui.theme.AttendifyTheme
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -27,53 +26,19 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    viewModel: HistoryViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit,
-    onNavigateToHome: () -> Unit,
-    onNavigateToProfile: () -> Unit
+    navController: NavController,
+    viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Attendance History") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+                title = { Text("Attendance History") }
             )
         },
         bottomBar = {
-            // We need a way to trigger navigation for the bottom bar.
-            // Since we don't have the navController here, we construct a fake one or
-            // better yet, we can't easily use the reusable BottomNavBar component 
-            // without the NavController reference or callbacks.
-            // However, the reusable component expects a NavController.
-            // Ideally, we refactor BottomNavBar to take callbacks or just copy the UI here.
-            // Given the constraint, copying the NavigationBar UI structure is cleaner than passing NavController everywhere.
-            
-            NavigationBar {
-                NavigationBarItem(
-                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.Home.icon, contentDescription = "Home") },
-                    label = { Text("Home") },
-                    selected = false,
-                    onClick = onNavigateToHome
-                )
-                NavigationBarItem(
-                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.History.icon, contentDescription = "History") },
-                    label = { Text("History") },
-                    selected = true,
-                    onClick = { /* Already here */ }
-                )
-                NavigationBarItem(
-                    icon = { Icon(com.allan.attendify.ui.components.BottomNavItem.Profile.icon, contentDescription = "Profile") },
-                    label = { Text("Profile") },
-                    selected = false,
-                    onClick = onNavigateToProfile
-                )
-            }
+            BottomNavBar(navController = navController, currentRoute = "history")
         }
     ) { paddingValues ->
         Box(
